@@ -4,4 +4,12 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-	return 'Hello Napier!'
+    logged = 0
+    if logged == 0:
+        page ="""
+        <html>
+        <h1>Dungeons and Dragons: HUB</h1>
+        <h2>Register </h2>
+        </html>
+        """
+    return page 
