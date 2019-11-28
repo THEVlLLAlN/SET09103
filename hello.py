@@ -3,13 +3,16 @@ import sqlite3
 app = Flask(__name__)
 
 
-@app.route("/account/", methods=['POST','GET'])
+@app.route("/", methods=['POST','GET'])
 def account():
     logged = 0
     if request.method =='POST':
         print request.form
         username = request.form['name']
         password = request.form['password']
+        conn = sqlite3.connect('users.db')
+        conn.execute("INSERT INTO users (username, password) VALUES ('%s','%s')" %(username,password,))
+        conn.close()
         return "<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in as %s!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a></body></html>" % username
 
     else:
