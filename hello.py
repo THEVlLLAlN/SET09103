@@ -26,10 +26,21 @@ def make_post():
 
 @app.route("/privateMessaging", methods=['POST','GET'])
 def pm():
-    conn = sqlite3.connect('users.db')
-    cur = conn.cursor()
-    cur.execute("CREATE TABLE messages(sender TEXT, message TEXT, reciever TEXT)")
-
+    if session['loggedd']!= None:
+        if request.method=='POST':
+            print request.form
+            message = request.form['message']
+            reciever = request.form['reciever']
+            username = session['usernames']
+            conn = sqlite3.connect('users.db')
+            cur = conn.cursor()
+            cur.execute("INSERT INTO messages (sender, message, reciever) VALUES('%s','%s','%s')" %(username,message,reciever))
+            conn.commit()
+            conn.close()
+            return redirect ('http://webtech-47.napier.ac.uk:5000/privateMessaging')
+        else: 
+            return "<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/hub'>Back to the hub</a><br><br><form action='' method='post' name='form'> <label for='name'>Message</label> <input type ='text' name='message' id='message'/><br><label for='reciever'>Reciever</label><input type='text' name='reciever' id='reciever'/><input type='submit' name ='submit' id='submit'/> </body></html>"
+    
 @app.route("/hub", methods=['POST','GET'])
 def hub():
     if session['loggedd']==None:
