@@ -38,9 +38,26 @@ def pm():
             conn.commit()
             conn.close()
             return redirect ('http://webtech-47.napier.ac.uk:5000/privateMessaging')
-        else: 
-            return "<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/hub'>Back to the hub</a><br><br><form action='' method='post' name='form'> <label for='name'>Message</label> <input type ='text' name='message' id='message'/><br><label for='reciever'>Reciever</label><input type='text' name='reciever' id='reciever'/><input type='submit' name ='submit' id='submit'/> </body></html>"
-    
+        else:
+            username = session['usernames']
+            conn = sqlite3.connect('users.db')
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM messages WHERE reciever='%s';"%username)
+            results = cur.fetchall()
+            post_list =""
+            for row in results:
+                row2=str(row).replace(", u","---")
+                post_list = post_list +"<div style='background-color:lightblue'>" + row2 + "</div>" + "<br>"
+
+
+
+
+            conn.commit()
+            conn.close()
+
+        return "<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/hub'>Back to the hub</a><br><br><form action='' method='post' name='form'> <label for='name'>Message</label> <input type ='text' name='message' id='message'/><br><label for='reciever'>Reciever</label><input type='text' name='reciever' id='reciever'/><input type='submit' name ='submit' id='submit'/><br>%s </body></html>" %post_list
+    else: 
+        return redirect('http://webtech-47.napier.ac.uk:5000/')
 @app.route("/hub", methods=['POST','GET'])
 def hub():
     if session['loggedd']==None:
