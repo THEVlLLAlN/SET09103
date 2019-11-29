@@ -24,6 +24,11 @@ def make_post():
         
         return "<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/hub'>Back to the hub</a><br><br><form action='' method='post' name='form'> <label for='name'>Post</label> <input type ='text' name='post' id='post'/><input type='submit' name ='submit' id='submit'/> </body></html>" 
 
+@app.route("/privateMessaging", methods=['POST','GET'])
+def pm():
+    conn = sqlite3.connect('users.db')
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE messages(sender TEXT, message TEXT, reciever TEXT)")
 
 @app.route("/hub", methods=['POST','GET'])
 def hub():
@@ -38,11 +43,18 @@ def hub():
         results = cur.fetchall()
 
         for row in results:
-            post_list = post_list +"<div style='background-color:lightblue'>" + str(row) + "</div>" + "<br>"
+            row2=str(row).replace(", u","---")
+            row2=row2.replace("None---","<b>Post:  </b>")
+            row2=row2.replace("---","<b>    Poster:  </b>")
+            post_list = post_list +"<div style='background-color:lightblue'>" + row2 + "</div>" + "<br>"
+
+
+
+        post_list.replace(',','-')
 
         conn.commit()
         conn.close()
-        return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a><br>%s</body></html>" % post_list
+        return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a>---------------------<a href='http://webtech-47.napier.ac.uk:5000/privateMessaging'> Or privately message another user</a><br>%s</body></html>" % post_list
  
 @app.route("/", methods=['POST','GET'])
 def account():
@@ -55,17 +67,22 @@ def account():
         cur = conn.cursor()
         cur.execute("INSERT INTO users (username, password) VALUES ('%s','%s')" %(username,password,))
         post_list =""
-        logged+=1
+        session['usernames'] = username
+        session['loggedd'] = 2
         cur.execute("SELECT * FROM posts")
         results = cur.fetchall()
         for row in results:
-            post_list = post_list + str(row) + "<br>"
-        set_cookie('logged',1)
-        set_cookie('username','%s' %username)
+            row2=str(row).replace(", u","---")
+            row2=row2.replace("None---","<b>Post:  </b>")
+            row2=row2.replace("---","<b>    Poster:  </b>")
+            post_list = post_list +"<div style='background-color:lightblue'>" + row2 + "</div>" + "<br>"
+
+            
+        
 
         conn.commit()
         conn.close()
-        return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a><br>%s</body></html>" % post_list
+        return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a>---------------------<a href='http://webtech-47.napier.ac.uk:5000/privateMessaging'> Or privately message another user</a><br>%s</body></html>" % post_list
 
     else:
       
@@ -106,14 +123,16 @@ def logout():
             cur.execute("SELECT * FROM posts")
             results = cur.fetchall()
             for row in results:
-                post_list = post_list + str(row) + "<br>"
+                row2=str(row).replace(", u","---")
+                row2=row2.replace("None---","<b>Post:  </b>")
+                row2=row2.replace("---","<b>    Poster:  </b>")
+                post_list = post_list +"<div style='background-color:lightblue'>" + row2 + "</div>" + "<br>"
 
-             
             session['usernames']=username
             session['loggedd']=2
-            return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a><br>%s</body></html>" % post_list
+            return"<html><head><style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style></head><h1>Dungeons and Dragons: HUB</h1><h2>You are logged in!</h2><body><a href='http://webtech-47.napier.ac.uk:5000/logout'>Logout</a><br>Wanna join in? <a href='http://webtech-47.napier.ac.uk:5000/makepost'> Make your own post!</a>---------------------<a href='http://webtech-47.napier.ac.uk:5000/privateMessaging'> Or privately message another user</a><br>%s</body></html>" % post_list
         else:
-            return" <html> <head> <style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style> </head> <h1 color='blue'>Dungeons and Dragons: HUB</h1> <h2>Make a temporary username and log in!</h2> <form action='' method='post' name='form'> <label for='name'>Username</label> <input type ='text' name='name' id='name'/> <br> <label for'password'>Password </label> <input type ='text' name='password' id='password'> <input type='submit' name ='submit' id='submit'/><br><body>There was no account with that credientials found, try again? </body> </html>" 
+            return" <html> <head> <style>html{background-color:#fefefe} body{font-family: Calibri; color:#454545; font-size:16px;margin:2em auto;max-width:800px;padding:1em;line-height:1.4;text-align:justify} h1 { text-align: Center} a {color: #07a} a:visited {color: #FF7E47} textarea{resize: none;} .btn { border: none; background-color: inherit; padding: 14px 28px; font-size: 16px; cursor: pointer; display: inline-block; }/* Green */ .success { color: #07a; } .success:hover { background-color: #07a; color: white; }</style> </head> <h1 color='blue'>Dungeons and Dragons: HUB</h1><h2>Please log in to access this site, dont have an account? <a href='http://webtech-47.napier.ac.uk:5000/'> Register!</a></h2><form action='' method='post' name='form'> <label for='name'>Username</label> <input type ='text' name='name' id='name'/> <br> <label for'password'>Password </label> <input type ='text' name='password' id='password'> <input type='submit' name ='submit' id='submit'/><br><body>There was no account with that credientials found, try again? </body> </html>" 
     
 
         
